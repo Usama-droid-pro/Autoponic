@@ -89,7 +89,7 @@ const ForgotPassword = props => {
               if (!text) {
                 alert('Email is empty!');
               } else {
-                const url = 'http://192.168.20.6:4000/forgetPassword/userForgetPassword';
+                const url = 'http://192.168.18.32:4000/forgetPassword/userForgetPassword';
                 const options = {
                   method: 'POST',
                   headers: {

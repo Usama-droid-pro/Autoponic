@@ -10,6 +10,7 @@ import ForgotPassword from './src/components/ForgotPassword'
 import VerifyAccount from './src/components/VerifyAccount';
 import UpdatePassword from './src/components/UpdatePassword'
 import DashBoard from './src/components/DashBoardScreen';
+import Button from './src/components/Button'
 
 
 function HomeScreen() {
@@ -49,6 +50,8 @@ function App() {
         <Stack.Screen  name="VerifyAccount" component={VerifyAccount} options={{ headerShown: false }} />
         <Stack.Screen  name="UpdatePassword" component={UpdatePassword} options={{ headerShown: false }} />
         <Stack.Screen  name="DashBoard" component={DashBoard} options={{ headerShown: false }} />
+        <Stack.Screen  name="Button" component={Button} options={{ headerShown: false }} />
+
 
 
 

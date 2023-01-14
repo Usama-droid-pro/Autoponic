@@ -31,7 +31,7 @@ import {
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
 const CELL_COUNT = 4;
-const VerifyAccount = ({props , route}) => {
+const VerifyAccount = (props) => {
   const [visible, setVisible] = React.useState(false);
 
   const showModal = () => setVisible(true);
@@ -80,7 +80,7 @@ const VerifyAccount = ({props , route}) => {
         <View style={{alignItems: 'center'}}>
           <Text style={styles.txt1}>Verify Account</Text>
           <Text style={styles.txt2}>
-            {route.params.email}
+            {props.route.params.email}
           </Text>
           <CodeField
             ref={ref}
@@ -106,12 +106,12 @@ const VerifyAccount = ({props , route}) => {
             myStyles={styles.fixedfooter}
             onPress={() => {
               console.log(value)
-              console.log(route.params.email)
+              console.log(props.route.params.email)
               if (!value){
                 alert('Empty')
               }
               else{
-                const url = 'http://192.168.20.6:4000/forgetPassword/verifyOTP';
+                const url = 'http://192.168.18.32:4000/forgetPassword/verifyOTP';
                 const options = {
                   method: 'POST',
                   headers: {
@@ -119,7 +119,7 @@ const VerifyAccount = ({props , route}) => {
                     'Content-Type': 'application/json;charset=UTF-8',
                   },
                   body: JSON.stringify({
-                    email:route.params.email,
+                    email:props.route.params.email,
                     userEnteredOtp:value
 
                   }),
@@ -143,6 +143,8 @@ const VerifyAccount = ({props , route}) => {
             }}
           />
         </View>
+
+        
         <Modal visible={visible} onDismiss={hideModal}>
           <View
             style={{
