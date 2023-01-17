@@ -11,7 +11,7 @@ import {
   TextInput,
   BackHandler,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import STYLES from '../STYLES';
 import {
   responsiveFontSize,
@@ -19,19 +19,67 @@ import {
   responsiveScreenHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-import {useFocusEffect} from '@react-navigation/native';
-import {fontFamily} from '../../constants/fonts';
-import {appImages} from '../../assets/utilities';
-import {MyButton} from '../../component/MyButton';
+import { useFocusEffect } from '@react-navigation/native';
+import { fontFamily } from '../../constants/fonts';
+import { appImages } from '../../assets/utilities';
+import { MyButton } from '../../component/MyButton';
 import Eye from 'react-native-vector-icons/Ionicons';
+import { register } from '../../api';
+import { useFormik } from 'formik';
 // import {useSelector, useDispatch} from 'react-redux';
 
-const Signup = ({navigation, route}) => {
+const Signup = ({ navigation, route }) => {
 
   const [myfocus, setMyfocus] = useState('');
   const [softinput, setSoftinput] = useState(false);
   const [issecure, setIssecure] = useState(true);
   const refpassword = useRef();
+  const initialValues = {
+    user_name: "",
+    email: "",
+    password: "",
+  }
+  const { values, errors, handleBlur, handleChange, handleSubmit } = useFormik({
+    initialValues: initialValues,
+    onSubmit: async (values) => {
+      try {
+
+        console.log("called");
+        if (values.user_name.length < 1) {
+          alert("User Name Required!!")
+        }
+        else if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(values.email))) {
+          alert("Invalid Email Format!!");
+        }
+
+        else if (values.password.length < 6) {
+          alert("Password length should be greater then 6")
+        }
+        else {
+          const { data } = await register(values)
+          console.log(data);
+          if (data.statusCode == 201) {
+            alert("Registered Successfully!");
+            // navigate("/authentication/sign-in")
+            navigation.navigate("Login");
+          }
+        }
+      }
+
+
+      catch (e) {
+
+        console.log(e);
+        console.log(e?.response?.data?.message);
+        alert(e?.response?.data?.message);
+
+        // setError(e?.response?.data?.message)
+      }
+    }
+  })
+  console.log(values)
+
+
   return (
     <SafeAreaView style={STYLES.container}>
       <StatusBar
@@ -46,7 +94,7 @@ const Signup = ({navigation, route}) => {
           width: responsiveWidth(100),
           height: responsiveHeight(100),
           position: 'absolute',
-          opacity:20
+          opacity: 20
         }}
         resizeMode="cover"
       />
@@ -59,28 +107,27 @@ const Signup = ({navigation, route}) => {
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-        <View style={{alignItems: 'center'}}>
+        <View style={{ alignItems: 'center' }}>
           <Text style={styles.txt1}>Sign Up</Text>
           <Text style={styles.txt2}>Welcome to UAAR Hydroponic Unit!</Text>
 
           <View
             style={[
               styles.txtinputview,
-              {borderColor: myfocus == 'userName' ? '#00CE30' : '#D9D9D9'},
+              { borderColor: myfocus == 'userName' ? '#00CE30' : '#D9D9D9' },
             ]}>
             <TextInput
-              showSoftInputOnFocus={softinput}
+
               autoFocus
               keyboardType="text"
               placeholder="user name"
               style={styles.txtinputstyle}
               selectionColor={'#00CE30'}
-              onFocus={() => setMyfocus('userName')}
-              onBlur={() => setMyfocus('')}
+              onChangeText={handleChange('user_name')}
+              onBlur={handleBlur('user_name')}
+              value={values.user_name}
               blurOnSubmit={false}
-              onSubmitEditing={() => {
-                refpassword.current.focus();
-              }}
+
               returnKeyType="next"
             />
           </View>
@@ -89,34 +136,34 @@ const Signup = ({navigation, route}) => {
           <View
             style={[
               styles.txtinputview,
-              {borderColor: myfocus == 'email' ? '#00CE30' : '#D9D9D9'},
+              { borderColor: myfocus == 'email' ? '#00CE30' : '#D9D9D9' },
             ]}>
             <TextInput
-              showSoftInputOnFocus={softinput}
-              autoFocus
+
+
               keyboardType="email-address"
               placeholder="Email"
               style={styles.txtinputstyle}
               selectionColor={'#00CE30'}
-              onFocus={() => setMyfocus('email')}
-              onBlur={() => setMyfocus('')}
-              blurOnSubmit={false}
-              onSubmitEditing={() => {
-                refpassword.current.focus();
-              }}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              value={values.email}
+
               returnKeyType="next"
             />
           </View>
-         
+
           <View
             style={[
               styles.txtinputview,
-              {borderColor: myfocus == 'password' ? '#00CE30' : '#D9D9D9'},
+              { borderColor: myfocus == 'password' ? '#00CE30' : '#D9D9D9' },
             ]}>
             <TextInput
-              onFocus={() => setMyfocus('password')}
-              onBlur={() => setMyfocus('')}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              value={values.password}
               placeholder="Password"
+
               style={styles.txtinputstyle2}
               secureTextEntry={issecure}
               selectionColor={'#00CE30'}
@@ -138,9 +185,8 @@ const Signup = ({navigation, route}) => {
           </TouchableOpacity>
           <MyButton
             title={'Signu Up'}
-            onPress={() => {
-              navigation.navigate("Splash");
-            }}
+            onPress={handleSubmit}
+
           />
         </View>
         <View style={styles.fixedfooter}>

@@ -11,7 +11,7 @@ import {
   TextInput,
   BackHandler,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import STYLES from '../STYLES';
 import {
   responsiveFontSize,
@@ -19,19 +19,71 @@ import {
   responsiveScreenHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
+
 // import {useFocusEffect} from '@react-navigation/native';
-import {fontFamily} from '../../constants/fonts';
-import {appImages} from '../../assets/utilities';
-import {MyButton} from '../../component/MyButton';
+import { fontFamily } from '../../constants/fonts';
+import { appImages } from '../../assets/utilities';
+import { MyButton } from '../../component/MyButton';
 import Eye from 'react-native-vector-icons/Ionicons';
+import { useFormik } from 'formik';
+import { login } from '../../api';
 // import {useSelector, useDispatch} from 'react-redux';
 
-const Login = ({navigation, route}) => {
+const Login = ({ navigation, route }) => {
 
   const [myfocus, setMyfocus] = useState('');
   const [softinput, setSoftinput] = useState(false);
   const [issecure, setIssecure] = useState(true);
   const refpassword = useRef();
+
+  const initialValues = {
+
+    email: "",
+    password: "",
+  }
+  const { values, errors, handleBlur, handleChange, handleSubmit } = useFormik({
+    initialValues: initialValues,
+    onSubmit: async (values) => {
+      try {
+
+        console.log("called");
+        if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(values.email))) {
+          alert("Invalid Email!!");
+        }
+
+        else if (values?.password?.length < 1) {
+          alert("Please Enter Password!!")
+        }
+        else {
+          const { data } = await login(values)
+          console.log(data);
+          if (data.status == "success") {
+
+            // alert("Reg Successfully!");
+            // navigate("/authentication/sign-in")
+            navigation.navigate("DashBoard");
+          }
+        }
+
+
+      }
+
+
+
+      catch (e) {
+
+        console.log(e);
+        console.log(e?.response?.data?.message);
+        alert(e?.response?.data?.message);
+
+        // setError(e?.response?.data?.message)
+      }
+    }
+  })
+  console.log(values)
+
+
+
   return (
     <SafeAreaView style={STYLES.container}>
       <StatusBar
@@ -46,7 +98,7 @@ const Login = ({navigation, route}) => {
           width: responsiveWidth(100),
           height: responsiveHeight(100),
           position: 'absolute',
-          opacity:20
+          opacity: 20
         }}
         resizeMode="cover"
       />
@@ -59,38 +111,36 @@ const Login = ({navigation, route}) => {
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-        <View style={{alignItems: 'center'}}>
+        <View style={{ alignItems: 'center' }}>
           <Text style={styles.txt1}>Sign In</Text>
           <Text style={styles.txt2}>Welcome back!</Text>
           <View
             style={[
               styles.txtinputview,
-              {borderColor: myfocus == 'email' ? '#00CE30' : '#D9D9D9'},
+              { borderColor: myfocus == 'email' ? '#00CE30' : '#D9D9D9' },
             ]}>
             <TextInput
-              showSoftInputOnFocus={softinput}
+
               autoFocus
               keyboardType="email-address"
               placeholder="Email"
               style={styles.txtinputstyle}
               selectionColor={'#00CE30'}
-              onFocus={() => setMyfocus('email')}
-              onBlur={() => setMyfocus('')}
-              blurOnSubmit={false}
-              onSubmitEditing={() => {
-                refpassword.current.focus();
-              }}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              value={values.email}
               returnKeyType="next"
             />
           </View>
           <View
             style={[
               styles.txtinputview,
-              {borderColor: myfocus == 'password' ? '#00CE30' : '#D9D9D9'},
+              { borderColor: myfocus == 'password' ? '#00CE30' : '#D9D9D9' },
             ]}>
             <TextInput
-              onFocus={() => setMyfocus('password')}
-              onBlur={() => setMyfocus('')}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              value={values.password}
               placeholder="Password"
               style={styles.txtinputstyle2}
               secureTextEntry={issecure}
@@ -114,9 +164,7 @@ const Login = ({navigation, route}) => {
           </TouchableOpacity>
           <MyButton
             title={'SIGN IN'}
-            onPress={() => {
-              navigation.navigate("DashBoard");
-            }}
+            onPress={handleSubmit}
           />
         </View>
         <View style={styles.fixedfooter}>
